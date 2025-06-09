@@ -44,6 +44,13 @@ const UserBox = () => {
           
           <button
             className='w-full hover:bg-neutral-700 duration-200 p-3 px-8 flex items-center'
+            onClick={() => navigate('/create')}
+          >
+            <IoPersonAddSharp className='mr-3' />
+            Create chenels
+          </button>
+          <button
+            className='w-full hover:bg-neutral-700 duration-200 p-3 px-8 flex items-center'
             onClick={() => navigate('/addfriend')}
           >
             <IoPersonAddSharp className='mr-3' />

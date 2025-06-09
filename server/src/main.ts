@@ -16,7 +16,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(new IoAdapter(app));
 
   // Écouter sur le port défini par Koyeb
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 8000;
   await app.listen(PORT);
   console.log(`Application is running on port ${PORT}`);
 }
