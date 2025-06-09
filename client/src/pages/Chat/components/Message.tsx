@@ -30,7 +30,7 @@ const Message: FC<Props> = ({ message }) => {
         <div
             className={`
                 rounded-md w-fit p-3 m-3 flex flex-col relative group
-                ${message.userId === user?.id ? 'bg-cyan-600 ml-auto' : 'bg-neutral-900'}
+                ${message.userId === user?.id ? 'bg-teal-800 ml-auto' : 'bg-gray-800'}
             `}
         >
             {

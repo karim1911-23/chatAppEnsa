@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ChannelModule } from './channel/channel.module';
 import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
+import { CallGateway } from './channel/call.gateway';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { UserModule } from './user/user.module';
     }),
   ],
   controllers: [AppController, AuthController],
-  providers:[AppService]
+  providers:[AppService,CallGateway]
 })
 export class AppModule {}

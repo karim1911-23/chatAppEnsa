@@ -43,9 +43,8 @@ const LoginForm: FC<Props> = ({ setIsFormOpen }) => {
         id,
         image
       }));
-      return setTimeout(() => {
-        return navigate('/');
-      }, 2000);
+         navigate('/');
+
     }
 
     reset();

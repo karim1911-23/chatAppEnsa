@@ -102,12 +102,25 @@ export const setFriend = async (
 };
 
 export const checkFriend = async (userId: string, id: string) => {
-  const { data } = await axiosWithAuth.get(`/users/${userId}`);
-  const friends: string[] = data.user.friends;
-  if (!friends) return false;
-
-  const isFriend = friends.includes(id);
-  return isFriend;
+  try {
+    if (!userId || !id) {
+      console.warn("checkFriend called with invalid parameters", { userId, id });
+      return false;
+    }
+    
+    const { data } = await axiosWithAuth.get(`/users/${userId}`);
+    
+    if (!data || !data.user) {
+      console.warn("No user data returned from API");
+      return false;
+    }
+    
+    const friends: string[] = data.user.friends || [];
+    return friends.includes(id);
+  } catch (error) {
+    console.error("Error checking friend status:", error);
+    return false;
+  }
 };
 
 // REQUESTS
@@ -220,10 +233,63 @@ export const setBlocked = async (
 };
 
 export const checkBlock = async (userId: string, id: string) => {
-  const { data } = await axiosWithAuth.get(`/users/${userId}`);
-  const blocked: string[] = data.user.blocked;
-  if (!blocked) return false;
+  try {
+    if (!userId || !id) {
+      console.warn("checkBlock called with invalid parameters", { userId, id });
+      return false;
+    }
+    
+    const { data } = await axiosWithAuth.get(`/users/${userId}`);
+    
+    if (!data || !data.user) {
+      console.warn("No user data returned from API");
+      return false;
+    }
+    
+    const blocked: string[] = data.user.blocked || [];
+    return blocked.includes(id);
+  } catch (error) {
+    console.error("Error checking block status:", error);
+    return false;
+  }
+};
 
-  const isBlocked = blocked.includes(id);
-  return isBlocked;
+// Add these functions back to your userService.tsx file
+
+// IMAGES
+export const uploadImages = async (images: any) => {
+  const results: any[] = [];
+
+  try {
+    for (let i = 0; i < images.length; i++) {
+      const formData = new FormData();
+      formData.append("file", images[i]);
+      formData.append("upload_preset", UPLOAD_PRESET!);
+      const { data } = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
+        formData
+      );
+      results.push(data.secure_url);
+    }
+    return results;
+  } catch (error) {
+    console.error("Error uploading images:", error);
+    return [];
+  }
+};
+
+export const uploadUserImage = async (image: any) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", UPLOAD_PRESET!);
+    const { data } = await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
+      formData
+    );
+    return data.secure_url;
+  } catch (error) {
+    console.error("Error uploading user image:", error);
+    throw error;
+  }
 };

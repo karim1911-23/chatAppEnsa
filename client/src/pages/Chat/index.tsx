@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -28,11 +28,43 @@ const Chat = () => {
   const [isVideoCall, setIsVideoCall] = useState(false);
   const ref = useChatScroll(messages);
 
+  // Get partner info for direct messages
+  const partnerInfo = useMemo(() => {
+    if (!channel?.name && channel?.participants) {
+      const partner = channel.participants.find(p => p.username !== user?.username);
+      return partner ? {
+        id: partner.id,
+        username: partner.username,
+        image: partner.image
+      } : null;
+    }
+    return null;
+  }, [channel, user]);
+
   // Call management functions
   const startCall = (video: boolean) => {
     setIsVideoCall(video);
     setIsCallActive(true);
   };
+
+  // Initialize socket connection for calls
+  useEffect(() => {
+    if (user?.id) {
+      // Join the socket room with our userId to receive call notifications
+      socket.emit('join', user.id);
+      
+      // Listen for incoming calls even when not in a call
+      socket.on('incoming-call', (data) => {
+        console.log('Incoming call detected in Chat component');
+        setIsVideoCall(data.type === 'video');
+        setIsCallActive(true);
+      });
+    }
+    
+    return () => {
+      socket.off('incoming-call');
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!location.state.channelId) return;
@@ -69,7 +101,7 @@ const Chat = () => {
 
   return (
     <section className='h-full relative overflow-hidden'>
-      <div className="flex items-center justify-between p-4 bg-neutral-800">
+      <div className="flex items-center justify-between p-4 ">
         <PageInfo
           isChannel={true}
           name={
@@ -107,13 +139,15 @@ const Chat = () => {
       {isCallActive && (
         <CallComponent
           userId={user?.id || ''}
-          targetUserId={channel?.id || ''}
+          targetUserId={partnerInfo?.id || channel?.id || ''}
           isVideo={isVideoCall}
           onEndCall={() => setIsCallActive(false)}
+          callerName={user?.username}
+          callerImage={user?.image}
         />
       )}
 
-      <div ref={ref} className='flex flex-col overflow-x-hidden overflow-y-auto pb-10 h-[85%] scroll-smooth'>
+      <div ref={ref} className='bg-white mb-3 flex flex-col overflow-x-hidden overflow-y-auto pb-10 h-[75%] scroll-smooth'>
         {!isPending ? (
           messages && messages.length > 0 ? (
             messages.map((message, index) => (

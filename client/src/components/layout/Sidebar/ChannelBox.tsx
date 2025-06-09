@@ -64,7 +64,7 @@ const ChannelBox: FC<Props> = ({ channel, userId, lastMessage, search }) => {
     <div
       onClick={handleClickChannel}
       className={`
-            w-full items-center p-3 border-b border-neutral-700 hover:bg-neutral-800 duration-200 cursor-pointer
+            w-full items-center p-3 border-b border-neutral-700 hover:bg-neutral-800 hover:text-slate-50 duration-200 cursor-pointer
             ${search
                 ?
                 (
@@ -87,7 +87,7 @@ const ChannelBox: FC<Props> = ({ channel, userId, lastMessage, search }) => {
               alt="user-pp"
             />
             <div className='ml-3'>
-              <h5 className='font-semibold w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-5 overflow-hidden'>
+              <h5 className='font-semibold hover:text-slate-50 w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-5 overflow-hidden text-slate-900'>
                 {otherUser?.username}
               </h5>
               <p className='text-neutral-400 mt-1 text-sm w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-5 overflow-hidden'>

@@ -33,9 +33,9 @@ const Sidebar = () => {
   return (
     <aside
       className={`
-            bg-neutral-900 border-r md:block border-neutral-700 xl:col-span-2 md:col-span-2 min-h-screen md:min-h-fit overflow-hidden  
-            ${location.pathname === "/" ? "block" : "hidden"} 
-        `}
+    bg-white border-r border-neutral-700 md:block xl:col-span-2 md:col-span-2 min-h-screen md:min-h-fit overflow-hidden  
+    ${location.pathname === "/" ? "block" : "hidden"} 
+  `}
     >
       <UserBox />
       <Searchbar setSearch={setSearch} />

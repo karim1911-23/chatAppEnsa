@@ -3,7 +3,7 @@ import { useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Link } from "react-router-dom";
 
-import Logo from '../../assets/brand-logo.png';
+import Logo from '../../assets/chatapp.png';
 import FormSuccess from "../../components/loading/FormSuccess";
 import Divider from "../Register/components/Divider";
 import LoginForm from "./components/LoginForm";

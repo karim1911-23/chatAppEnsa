@@ -1,7 +1,7 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class CallGateway {
   @WebSocketServer()
   server: Server;
@@ -18,16 +18,34 @@ export class CallGateway {
 
   @SubscribeMessage('call-user')
   handleCallUser(
-    @MessageBody() data: { to: string; from: string; signal: any; type: 'video' | 'audio' },
+    @MessageBody() data: { 
+      to: string; 
+      from: string; 
+      signal: any; 
+      type: 'video' | 'audio';
+      callerName?: string;
+      callerImage?: string;
+    },
     @ConnectedSocket() client: Socket
   ) {
     console.log(`Call from ${data.from} to ${data.to}, type: ${data.type}`);
+    
+    // Get the socket ID for the target user
+    const targetSocketId = this.userSocketMap.get(data.to);
+    
+    if (targetSocketId) {
+      console.log(`Found target socket: ${targetSocketId}`);
+    } else {
+      console.log(`Target user ${data.to} not found in socket map`);
+    }
     
     // Forward the call request to the target user
     this.server.to(data.to).emit('incoming-call', {
       from: data.from,
       signal: data.signal,
-      type: data.type
+      type: data.type,
+      callerName: data.callerName,
+      callerImage: data.callerImage
     });
   }
 

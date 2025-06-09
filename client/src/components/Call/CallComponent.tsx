@@ -1,27 +1,45 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'simple-peer';
 import socket from '../../lib/socket';
+import { CALL_NOTIFICATION_SOUND } from '../../utils/constants';
 
 interface CallComponentProps {
   userId: string;
   targetUserId: string;
   isVideo: boolean;
   onEndCall: () => void;
+  callerName?: string;
+  callerImage?: string;
 }
 
-const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isVideo, onEndCall }) => {
+const CallComponent: React.FC<CallComponentProps> = ({ 
+  userId, 
+  targetUserId, 
+  isVideo, 
+  onEndCall,
+  callerName,
+  callerImage 
+}) => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [receivingCall, setReceivingCall] = useState(false);
   const [callAccepted, setCallAccepted] = useState(false);
   const [caller, setCaller] = useState("");
+  const [callerInfo, setCallerInfo] = useState<{name: string, image: string} | null>(null);
   const [callerSignal, setCallerSignal] = useState<any>();
   const [callStatus, setCallStatus] = useState<'idle' | 'calling' | 'ringing' | 'connected'>('idle');
-
+  
   const userVideo = useRef<HTMLVideoElement>(null);
   const partnerVideo = useRef<HTMLVideoElement>(null);
   const connectionRef = useRef<Peer.Instance>();
+  const notificationSound = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    // Initialize notification sound
+    notificationSound.current = new Audio(CALL_NOTIFICATION_SOUND);
+    
+    // First, make sure we join the socket room with our userId
+    socket.emit('join', userId);
+    
     navigator.mediaDevices.getUserMedia({ 
       video: isVideo, 
       audio: true 
@@ -40,6 +58,7 @@ const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isV
 
     // Listen for incoming calls
     socket.on('incoming-call', (data) => {
+      console.log('Received incoming call from:', data.from);
       setReceivingCall(true);
       setCaller(data.from);
       setCallerSignal(data.signal);
@@ -73,7 +92,7 @@ const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isV
       socket.off('call-rejected');
       socket.off('call-ended');
     };
-  }, [isVideo]);
+  }, [isVideo, userId]);
 
   const callUser = () => {
     setCallStatus('calling');
@@ -84,11 +103,14 @@ const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isV
     });
 
     peer.on('signal', (data) => {
+      console.log('Calling user:', targetUserId);
       socket.emit('call-user', {
         to: targetUserId,
         signal: data,
         from: userId,
-        type: isVideo ? 'video' : 'audio'
+        type: isVideo ? 'video' : 'audio',
+        callerName: callerName,
+        callerImage: callerImage
       });
     });
 
@@ -104,6 +126,12 @@ const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isV
   const answerCall = () => {
     setCallAccepted(true);
     setCallStatus('connected');
+    
+    // Stop notification sound when call is answered
+    if (notificationSound.current) {
+      notificationSound.current.pause();
+      notificationSound.current.currentTime = 0;
+    }
     
     const peer = new Peer({
       initiator: false,
@@ -129,6 +157,12 @@ const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isV
   };
 
   const rejectCall = () => {
+    // Stop notification sound when call is rejected
+    if (notificationSound.current) {
+      notificationSound.current.pause();
+      notificationSound.current.currentTime = 0;
+    }
+    
     socket.emit('reject-call', { to: caller });
     setReceivingCall(false);
     setCallStatus('idle');
@@ -178,37 +212,48 @@ const CallComponent: React.FC<CallComponentProps> = ({ userId, targetUserId, isV
           </div>
         )}
 
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4 justify-center">
           {stream && (
-            <video
-              playsInline
-              muted
-              ref={userVideo}
-              autoPlay
-              className="w-64 h-48 bg-black"
-            />
+            <div className="relative">
+              <video
+                playsInline
+                muted
+                ref={userVideo}
+                autoPlay
+                className="w-full md:w-64 h-48 bg-black rounded-lg"
+              />
+              <span className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-sm">
+                You
+              </span>
+            </div>
           )}
           {callAccepted && (
-            <video
-              playsInline
-              ref={partnerVideo}
-              autoPlay
-              className="w-64 h-48 bg-black"
-            />
+            <div className="relative">
+              <video
+                playsInline
+                ref={partnerVideo}
+                autoPlay
+                className="w-full md:w-64 h-48 bg-black rounded-lg"
+              />
+              <span className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-sm">
+                {callerInfo?.name || 'Caller'}
+              </span>
+            </div>
           )}
         </div>
-        <div className="flex justify-center gap-4 mt-4">
+        
+        <div className="flex justify-center gap-4 mt-6">
           {!callAccepted && !receivingCall && callStatus === 'idle' && (
             <button
               onClick={callUser}
-              className="bg-green-500 px-4 py-2 rounded"
+              className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              {isVideo ? 'Video Call' : 'Voice Call'}
+              {isVideo ? 'Start Video Call' : 'Start Voice Call'}
             </button>
           )}
           <button
             onClick={endCall}
-            className="bg-red-500 px-4 py-2 rounded"
+            className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-lg font-medium transition-colors"
           >
             End Call
           </button>
