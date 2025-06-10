@@ -27,11 +27,86 @@ const CallComponent: React.FC<CallComponentProps> = ({
   const [callerInfo, setCallerInfo] = useState<{name: string, image: string} | null>(null);
   const [callerSignal, setCallerSignal] = useState<any>();
   const [callStatus, setCallStatus] = useState<'idle' | 'calling' | 'ringing' | 'connected'>('idle');
+  const [videoEnabled, setVideoEnabled] = useState(isVideo);
   
   const userVideo = useRef<HTMLVideoElement>(null);
   const partnerVideo = useRef<HTMLVideoElement>(null);
   const connectionRef = useRef<Peer.Instance>();
   const notificationSound = useRef<HTMLAudioElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Fonction pour accéder aux médias avec gestion d'erreur améliorée
+  const getMediaStream = async (video: boolean, audio: boolean) => {
+    try {
+      console.log("Requesting media access with video:", video, "audio:", audio);
+      
+      // Définir des contraintes spécifiques pour la vidéo
+      const videoConstraints = video ? {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: "user"
+      } : false;
+      
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: videoConstraints, 
+        audio: audio 
+      });
+      
+      console.log("Media stream obtained successfully", mediaStream.getTracks());
+      
+      // Vérifier si les pistes vidéo sont actives
+      if (video) {
+        const videoTracks = mediaStream.getVideoTracks();
+        console.log("Video tracks:", videoTracks.length, videoTracks.map(t => t.enabled));
+        
+        if (videoTracks.length === 0) {
+          console.warn("No video tracks found in the media stream");
+        }
+      }
+      
+      setStream(mediaStream);
+      streamRef.current = mediaStream;
+      
+      // Assurez-vous que l'élément vidéo est correctement configuré
+      if (userVideo.current) {
+        console.log("Setting local video source");
+        userVideo.current.srcObject = mediaStream;
+        
+        // Forcer la lecture de la vidéo avec gestion d'événements
+        userVideo.current.onloadedmetadata = () => {
+          console.log("Local video metadata loaded");
+          userVideo.current?.play()
+            .then(() => console.log("Local video playback started"))
+            .catch(e => console.error("Error playing local video:", e));
+        };
+      }
+      
+      return mediaStream;
+    } catch (err) {
+      console.error("Error accessing media devices:", err);
+      alert("Could not access camera/microphone. Please check your device permissions.");
+      onEndCall();
+      return null;
+    }
+  };
+
+  // Fonction pour configurer la vidéo distante
+  const setupRemoteVideo = (remoteStream: MediaStream) => {
+    console.log("Setting up remote video", remoteStream.getTracks());
+    
+    if (partnerVideo.current) {
+      partnerVideo.current.srcObject = remoteStream;
+      
+      partnerVideo.current.onloadedmetadata = () => {
+        console.log("Remote video metadata loaded");
+        partnerVideo.current?.play()
+          .then(() => console.log("Remote video playback started"))
+          .catch(e => console.error("Error playing remote video:", e));
+      };
+    } else {
+      console.error("Partner video element not found");
+    }
+  };
 
   useEffect(() => {
     // Initialize notification sound
@@ -40,22 +115,6 @@ const CallComponent: React.FC<CallComponentProps> = ({
     // First, make sure we join the socket room with our userId
     socket.emit('join', userId);
     
-    navigator.mediaDevices.getUserMedia({ 
-      video: isVideo, 
-      audio: true 
-    })
-    .then((stream) => {
-      setStream(stream);
-      if (userVideo.current) {
-        userVideo.current.srcObject = stream;
-      }
-    })
-    .catch(err => {
-      console.error("Error accessing media devices:", err);
-      alert("Could not access camera/microphone");
-      onEndCall();
-    });
-
     // Listen for incoming calls
     socket.on('incoming-call', (data) => {
       console.log('Received incoming call from:', data.from);
@@ -63,10 +122,16 @@ const CallComponent: React.FC<CallComponentProps> = ({
       setCaller(data.from);
       setCallerSignal(data.signal);
       setCallStatus('ringing');
+      
+      // Play notification sound
+      if (notificationSound.current) {
+        notificationSound.current.play().catch(e => console.error("Error playing notification sound:", e));
+      }
     });
 
     // Listen for call answers
     socket.on('call-answered', (data) => {
+      console.log('Call answered:', data);
       if (connectionRef.current) {
         connectionRef.current.signal(data.signal);
         setCallAccepted(true);
@@ -86,44 +151,72 @@ const CallComponent: React.FC<CallComponentProps> = ({
     });
 
     return () => {
-      stream?.getTracks().forEach(track => track.stop());
+      // Cleanup function
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          console.log("Stopping track:", track.kind, track.id);
+          track.stop();
+        });
+      }
+      
       socket.off('incoming-call');
       socket.off('call-answered');
       socket.off('call-rejected');
       socket.off('call-ended');
     };
-  }, [isVideo, userId]);
+  }, [userId]);
 
-  const callUser = () => {
+  const callUser = async () => {
     setCallStatus('calling');
+    
+    // Obtenir le flux média seulement au moment d'appeler
+    const mediaStream = await getMediaStream(videoEnabled, true);
+    if (!mediaStream) return;
+    
+    console.log("Creating peer as initiator");
     const peer = new Peer({
       initiator: true,
       trickle: false,
-      stream: stream!
+      stream: mediaStream,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
+        ]
+      }
     });
 
     peer.on('signal', (data) => {
-      console.log('Calling user:', targetUserId);
+      console.log('Signaling to peer:', targetUserId);
       socket.emit('call-user', {
         to: targetUserId,
         signal: data,
         from: userId,
-        type: isVideo ? 'video' : 'audio',
+        type: videoEnabled ? 'video' : 'audio',
         callerName: callerName,
         callerImage: callerImage
       });
     });
 
-    peer.on('stream', (stream) => {
-      if (partnerVideo.current) {
-        partnerVideo.current.srcObject = stream;
-      }
+    peer.on('stream', (remoteStream) => {
+      console.log('Received stream from peer');
+      setupRemoteVideo(remoteStream);
+    });
+    
+    peer.on('error', (err) => {
+      console.error('Peer error:', err);
+      alert('Connection error. Please try again.');
+      endCall();
     });
 
     connectionRef.current = peer;
   };
 
-  const answerCall = () => {
+  const answerCall = async () => {
+    // Obtenir le flux média seulement au moment de répondre
+    const mediaStream = await getMediaStream(videoEnabled, true);
+    if (!mediaStream) return;
+    
     setCallAccepted(true);
     setCallStatus('connected');
     
@@ -133,25 +226,39 @@ const CallComponent: React.FC<CallComponentProps> = ({
       notificationSound.current.currentTime = 0;
     }
     
+    console.log("Creating peer as receiver");
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      stream: stream!
+      stream: mediaStream,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
+        ]
+      }
     });
 
     peer.on('signal', (data) => {
+      console.log('Signaling answer to:', caller);
       socket.emit('answer-call', { 
         signal: data, 
         to: caller 
       });
     });
 
-    peer.on('stream', (stream) => {
-      if (partnerVideo.current) {
-        partnerVideo.current.srcObject = stream;
-      }
+    peer.on('stream', (remoteStream) => {
+      console.log('Received stream from caller');
+      setupRemoteVideo(remoteStream);
+    });
+    
+    peer.on('error', (err) => {
+      console.error('Peer error:', err);
+      alert('Connection error. Please try again.');
+      endCall();
     });
 
+    console.log('Signaling to caller with:', callerSignal);
     peer.signal(callerSignal);
     connectionRef.current = peer;
   };
@@ -170,10 +277,19 @@ const CallComponent: React.FC<CallComponentProps> = ({
   };
 
   const endCall = () => {
+    console.log("Ending call");
     if (connectionRef.current) {
       connectionRef.current.destroy();
     }
-    stream?.getTracks().forEach(track => track.stop());
+    
+    // Arrêter tous les tracks du stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        console.log("Stopping track:", track.kind, track.id);
+        track.stop();
+      });
+    }
+    
     socket.emit('end-call', { to: targetUserId });
     setCallAccepted(false);
     setReceivingCall(false);

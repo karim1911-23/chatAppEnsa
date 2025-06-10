@@ -16,10 +16,10 @@ const Layout: FC<Props> = ({ children }) => {
             </>
         )
     }
-
-    return (
-        <div className='h-[100vh] w-[100%] bg-emerald-600 flex items-center justify-center'>
-            <div className='grid grid-cols-1 md:grid-cols-5 xl:grid-cols-7 lg:w-[100%] lg:h-[100%] max-w-[1600px] w-full h-full md:max-h-[1000px] bg-neutral-800 rounded-md'>
+/*     grid grid-cols-1 md:grid-cols-5 xl:grid-cols-7 
+ */    return (
+        <div className='h-[100vh] w-[100%] flex items-center justify-center'>
+            <div className='flex justify-center  lg:w-[100%] lg:h-[100%] max-w-[1600px] w-full h-full md:max-h-[1000px] bg-neutral-800 '>
                 <Sidebar />
                 <ContentArea>
                 {children}

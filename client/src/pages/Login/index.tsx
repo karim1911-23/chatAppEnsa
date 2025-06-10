@@ -14,8 +14,8 @@ const Login = () => {
   const [lastUser, setLastUser] = useState<string>(Cookies.get('last_user') || '');
 
   return (
-    <div className="flex justify-center items-center h-[100vh]">
-      <div className="bg-emerald-600 px-3 py-10 shadow-lg rounded-md text-white min-h-[500px] w-full sm:w-[400px] h-full sm:h-auto">
+    <div className="flex justify-center items-center h-[100vh] bg-gray-900">
+      <div className="bg-slate-800 px-3 py-10 shadow-lg rounded-md text-white min-h-[500px] w-full sm:w-[400px] h-full sm:h-auto">
         {
           isFormOpen
             ?
@@ -27,7 +27,7 @@ const Login = () => {
                   :
                   <div>
                     <LazyLoadImage
-                      className='w-[80%] mx-auto border-b border-neutral-700 hidden sm:block'
+                      className='w-[70%] mx-auto border-b border-neutral-700 hidden sm:block'
                       src={Logo}
                       alt='logo'
                       effect='blur'

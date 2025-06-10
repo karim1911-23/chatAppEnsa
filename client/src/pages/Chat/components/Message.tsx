@@ -29,7 +29,7 @@ const Message: FC<Props> = ({ message }) => {
     return (
         <div
             className={`
-                rounded-md w-fit p-3 m-3 flex flex-col relative group
+                rounded-md w-fit p-3 m-3 flex flex-col relative group 
                 ${message.userId === user?.id ? 'bg-teal-800 ml-auto' : 'bg-gray-800'}
             `}
         >
@@ -40,7 +40,7 @@ const Message: FC<Props> = ({ message }) => {
                     {
                         isOpen
                             ?
-                            <div className='top-3 right-0 p-3 bg-cyan-500 shadow-xl absolute w-32 rounded-md'>
+                            <div className='top-3 right-0 p-3 bg-gray-900 shadow-xl absolute w-32 rounded-md'>
                                 <p className='text-xl font-semibold'>Delete ?</p>
                                 <button onClick={handleDelete} className='mr-5 font-medium text-lg py-2 hover:underline'>Yes</button>
                                 <button onClick={() => setIsOpen(false)} className='py-2 font-medium text-lg hover:underline'>No</button>

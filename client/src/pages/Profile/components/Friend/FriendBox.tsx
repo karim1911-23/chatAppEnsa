@@ -93,7 +93,7 @@ const FriendBox: FC<Props> = ({ friend }) => {
 
     return (
         <>
-            <div className="flex p-3 items-center">
+            <div className="flex p-3 items-center ">
                 <LazyLoadImage
                     onClick={() => navigate('/profile', { state: { userId: friend.id } })}
                     src={friend.image}

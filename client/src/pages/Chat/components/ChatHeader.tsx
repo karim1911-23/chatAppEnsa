@@ -17,7 +17,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ channelId, userId }) => {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+    <div className="flex items-center justify-between p-2 border-b border-neutral-700">
       <div className="flex gap-4">
         <button
           onClick={() => startCall(true)}

@@ -80,6 +80,7 @@ const ChatInput: FC<Props> = ({ channelId, setMessages }) => {
                     readOnly={isPending}
                     spellCheck='false'
                     type="text"
+                    placeholder='Type your message...'
                     name='chat'
                     className="bg-neutral-800 rounded-lg w-[90%] h-10 outline-none p-2"
                 />

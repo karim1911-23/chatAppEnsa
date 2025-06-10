@@ -100,35 +100,37 @@ const Chat = () => {
   }, [channel?.id, dispatch]);
 
   return (
-    <section className='h-full relative overflow-hidden'>
-      <div className="flex items-center justify-between p-4 ">
+    <section className="bg-neutral-900  h-full relative overflow-hidden">
+      <div className="flex items-center justify-between p-1 ">
         <PageInfo
           isChannel={true}
           name={
-            channel?.name ? channel?.name :
-              (channel?.participants[0].username === user?.username
-                ? channel?.participants[1].username
-                : channel?.participants[0].username)
+            channel?.name
+              ? channel?.name
+              : channel?.participants[0].username === user?.username
+              ? channel?.participants[1].username
+              : channel?.participants[0].username
           }
           participants={channel?.name ? channel?.participants : null}
           image={
-            channel?.name ? channel.image :
-              (channel?.participants[0].username === user?.username
-                ? channel?.participants[1].image
-                : channel?.participants[0].image)
+            channel?.name
+              ? channel.image
+              : channel?.participants[0].username === user?.username
+              ? channel?.participants[1].image
+              : channel?.participants[0].image
           }
         />
         <div className="flex gap-4">
           <button
             onClick={() => startCall(true)}
-            className="p-3 hover:bg-neutral-700 rounded-full text-cyan-400"
+            className="p-3 hover:bg-neutral-700 rounded-full text-white"
             title="Start Video Call"
           >
             <BsCameraVideo size={22} />
           </button>
           <button
             onClick={() => startCall(false)}
-            className="p-3 hover:bg-neutral-700 rounded-full text-cyan-400"
+            className="p-3 hover:bg-neutral-700 rounded-full text-white"
             title="Start Voice Call"
           >
             <BsTelephone size={22} />
@@ -138,8 +140,8 @@ const Chat = () => {
 
       {isCallActive && (
         <CallComponent
-          userId={user?.id || ''}
-          targetUserId={partnerInfo?.id || channel?.id || ''}
+          userId={user?.id || ""}
+          targetUserId={partnerInfo?.id || channel?.id || ""}
           isVideo={isVideoCall}
           onEndCall={() => setIsCallActive(false)}
           callerName={user?.username}
@@ -147,25 +149,28 @@ const Chat = () => {
         />
       )}
 
-      <div ref={ref} className='bg-white mb-3 flex flex-col overflow-x-hidden overflow-y-auto pb-10 h-[75%] scroll-smooth'>
+      <div
+        ref={ref}
+        className="bg-zinc-800 mb-3 flex flex-col overflow-x-hidden overflow-y-auto pb-10 h-[75%] scroll-smooth"
+      >
         {!isPending ? (
           messages && messages.length > 0 ? (
             messages.map((message, index) => (
               <Message key={index} message={message} />
             ))
           ) : (
-            <p className='bg-cyan-600 p-3 m-2 rounded-md text-center'>
+            <p className="bg-cyan-600 p-3 m-2 rounded-md text-center">
               There are no messages yet.
             </p>
           )
         ) : (
-          <Spinner size='lg' />
+          <Spinner size="lg" />
         )}
       </div>
-      
+
       <ChatInput channelId={channel?.id!} setMessages={setMessages} />
     </section>
-  )
+  );
 }
 
 export default Chat;

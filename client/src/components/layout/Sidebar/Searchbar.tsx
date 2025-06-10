@@ -9,7 +9,7 @@ const Searchbar: FC<Props> = ({ setSearch }) => {
     <div className='p-3 w-full border-y border-neutral-700'>
       <input
         onChange={(e) => setSearch(e.target.value)}
-        className='p-2 bg-neutral-700 rounded-2xl w-full outline-none'
+        className='p-2 bg-stone-600 text-white rounded-sm w-full outline-none'
         placeholder='Search...'
         type="text"
         name='text'

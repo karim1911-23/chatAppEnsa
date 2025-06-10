@@ -37,9 +37,9 @@ const UserBox = () => {
         alt='user-pp'
         effect='blur'
       />
-      <p className='ml-3 text-lg w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-7 overflow-hidden text-slate-900 '>{loggedUser?.username}</p>
+      <p className='ml-3 text-lg w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-7 overflow-hidden text-white '>{loggedUser?.username}</p>
       <div className=' ml-auto cursor-pointer group'>
-        <RxDotsVertical className='text-2xl text-slate-900' />
+        <RxDotsVertical className='text-2xl text-white' />
         <div className='absolute group-hover:block hidden text-white w-full lg:max-w-[220px] md:w-auto bg-neutral-800 border border-neutral-900 shadow-md rounded-md z-50 right-0 '>
           
           <button
@@ -47,7 +47,7 @@ const UserBox = () => {
             onClick={() => navigate('/create')}
           >
             <IoPersonAddSharp className='mr-3' />
-            Create chenels
+            Create Channel
           </button>
           <button
             className='w-full hover:bg-neutral-700 duration-200 p-3 px-8 flex items-center'

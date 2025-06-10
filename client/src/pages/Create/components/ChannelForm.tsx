@@ -118,7 +118,7 @@ const ChannelForm = () => {
                 </div>
             </div>
             <Participants participants={participants} setParticipants={setParticipants} admins={admins} setAdmins={setAdmins} />
-            <div className='p-3 lg:p-0'>
+            <div className='p-3 lg:p-0 mb-5'>
                 <BasicButton type='submit' >Create Channel</BasicButton>
             </div>
             <Toaster />

@@ -32,8 +32,9 @@ const Sidebar = () => {
 
   return (
     <aside
+    style={{width:"40%"}}
       className={`
-    bg-white border-r border-neutral-700 md:block xl:col-span-2 md:col-span-2 min-h-screen md:min-h-fit overflow-hidden  
+    bg-neutral-900 border-r border-neutral-700 md:block xl:col-span-2 md:col-span-2 min-h-screen md:min-h-fit overflow-hidden  
     ${location.pathname === "/" ? "block" : "hidden"} 
   `}
     >
@@ -57,7 +58,7 @@ const Sidebar = () => {
             );
           })
         ) : (
-          <p className="text-neutral-500 text-center mt-3">
+          <p className="text-white text-center mt-3">
             Create a channel now and start chatting.
           </p>
         )}

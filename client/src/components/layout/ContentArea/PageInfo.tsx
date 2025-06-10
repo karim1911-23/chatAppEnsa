@@ -22,7 +22,7 @@ const PageInfo: FC<Props> = ({ image, name, participants, isChannel }) => {
     };
 
     return (
-        <div className={`text-2xl flex items-center px-5 w-full sticky z-50 top-0 ${participants ? 'py-3 h-22' : 'py-11 h-20'}`}>
+        <div className={`text-xl flex items-center px-5 w-full sticky z-50 top-0 ${participants ? 'py-3 h-22' : 'py-11 h-20'}`}>
             <FaArrowLeft className='mr-3 md:mr-5 cursor-pointer' onClick={() => navigate(-1)} />
             {
                 image
@@ -31,7 +31,7 @@ const PageInfo: FC<Props> = ({ image, name, participants, isChannel }) => {
                     src={image}
                     alt='channel-pp'
                     effect='blur'
-                    className='w-16 h-16 rounded-full mx-3 lg:mx-5 object-cover'
+                    className='w-11 h-11 rounded-full mx-3 lg:mx-5 object-cover'
                 />
             }
             <div className='max-h-16 xl:w-96 lg:w-80 md:w-52 sm:w-36 w-32 overflow-hidden'>

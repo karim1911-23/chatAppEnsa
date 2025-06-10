@@ -87,7 +87,7 @@ const ChannelBox: FC<Props> = ({ channel, userId, lastMessage, search }) => {
               alt="user-pp"
             />
             <div className='ml-3'>
-              <h5 className='font-semibold hover:text-slate-50 w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-5 overflow-hidden text-slate-900'>
+              <h5 className='font-semibold hover:text-slate-50 w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-5 overflow-hidden text-white'>
                 {otherUser?.username}
               </h5>
               <p className='text-neutral-400 mt-1 text-sm w-32 sm:w-64 md:w-40 lg:w-52 xl:w-56 h-5 overflow-hidden'>
@@ -101,7 +101,7 @@ const ChannelBox: FC<Props> = ({ channel, userId, lastMessage, search }) => {
                       `${lastMessage.userId === userId ? 'You' : otherUser?.username}: ${lastMessage.text}`
                   )
                   :
-                  'You joined to this channel.'}
+                  'You joined to this conversation.'}
               </p>
             </div>
           </>
