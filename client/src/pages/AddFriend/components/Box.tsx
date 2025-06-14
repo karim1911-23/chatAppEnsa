@@ -48,7 +48,7 @@ const Box: FC<Props> = ({ user }) => {
 
     const handleBlock = () => {
         addBlock();
-        toast.success('User blocked successfully.', {
+        toast.success('User blocked successfully..', {
             duration: 3000,
             position: 'bottom-center',
             style: {
