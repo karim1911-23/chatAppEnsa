@@ -107,7 +107,7 @@ const RegisterForm: FC<Props> = ({ setIsFormOpen }) => {
         }}
       />
       <div className="w-[90%] md:w-[80%] mx-auto">
-        <BasicButton type="submit">Create Account</BasicButton>
+        <BasicButton type="submit">Create </BasicButton>
       </div>
       <Toaster />
     </form>
