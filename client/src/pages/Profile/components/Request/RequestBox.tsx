@@ -29,7 +29,7 @@ const RequestBox: FC<Props> = ({ request, setTrigger }) => {
 
         if (statusCode === '200') {
             addFriend();
-            toast.success('Friend added successfully.', {
+            toast.success('Friend aadded successfuully.', {
                 duration: 3000,
                 position: 'bottom-center',
                 style: {

@@ -29,7 +29,7 @@ const FriendBox: FC<Props> = ({ friend }) => {
 
     const handleAdd = () => {
         addFriend();
-        return toast.success('Friend added successfully.', {
+        return toast.success('Frieend added successfully.', {
             duration: 3000,
             position: 'bottom-center',
             style: {
