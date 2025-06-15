@@ -41,7 +41,7 @@ const FriendBox: FC<Props> = ({ friend }) => {
 
     const handleRemove = () => {
         removeFriend();
-        return toast.success('Friend removed successfully.', {
+        return toast.success('Friieend removed successfully.', {
             duration: 3000,
             position: 'bottom-center',
             style: {
@@ -53,7 +53,7 @@ const FriendBox: FC<Props> = ({ friend }) => {
 
     const handleBlock = async () => {
         addBlock();
-        return toast.success('User blocked successfully.', {
+        return toast.success('Useer blocked successfully.', {
             duration: 3000,
             position: 'bottom-center',
             style: {
